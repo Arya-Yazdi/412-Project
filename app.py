@@ -43,8 +43,7 @@ def register():
     if request.method == "POST":
         # Ensure a username was submitted
         if not request.form.get("username"):
-            error_no_username = "*Please type in a username"
-            return render_template("register.html", error_no_username=error_no_username)
+            return render_template("register.html", error_no_username="*Please type in a username")
         
         # Query database for username
         dbusername = db.execute("SELECT username FROM users WHERE username = ?", request.form.get("username"))
@@ -59,8 +58,9 @@ def register():
 
         # Create user and Log user in after they successfully register
         if request.form.get("password"):
-            db.execute("INSERT INTO users (username, hashed_password) VALUES (?, ?)", request.form.get(
-                       "username"), generate_password_hash(request.form.get("password")))
+            db.execute("INSERT INTO users (username, hashed_password) VALUES (?, ?)", 
+                        request.form.get("username"), 
+                        generate_password_hash(request.form.get("password")))
             return login()
 
     # Show Register page.
@@ -79,13 +79,11 @@ def login():
     if request.method == "POST":
         # Ensure username was submitted
         if not request.form.get("username"):
-            error_no_username = "*Please type in your username"
-            return render_template("login.html", error_no_username=error_no_username)
+            return render_template("login.html", error_no_username="*Please type in your username")
 
         # Ensure password was submitted
         if not request.form.get("password"):
-            error_password = "*Please type in your password"
-            return render_template("login.html", error_password=error_password)
+            return render_template("login.html", error_password="*Please type in your password")
 
         # Query database for username
         results = db.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
