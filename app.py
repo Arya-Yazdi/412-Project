@@ -41,41 +41,29 @@ def register():
     session.clear()
 
     if request.method == "POST":
+        # Ensure a username was submitted
+        if not request.form.get("username"):
+            error_no_username = "*Please type in a username"
+            return render_template("register.html", error_no_username=error_no_username)
+        
         # Query database for username
         dbusername = db.execute("SELECT username FROM users WHERE username = ?", request.form.get("username"))
 
         # Ensure username is not already taken
         if len(dbusername) == 1:
-            error_username_taken = "*Username is already taken :("
-            return render_template("register.html", error_username_taken=error_username_taken)
-
-        # Ensure username was submitted
-        elif not request.form.get("username"):
-            error_no_username = "*Please type in a username"
-            return render_template("register.html", error_no_username=error_no_username)
+            return render_template("register.html", error_username_taken="*Username is already taken.")
 
         # Ensure password was submitted
-        elif not request.form.get("password"):
-            error_password = "*Please type in your password"
-            return render_template("register.html", error_password=error_password)
+        if not request.form.get("password"):
+            return render_template("register.html", error_password="*Please type in your password")
 
-        # Ensure password was reentered for confirmation
-        elif not request.form.get("confirmation"):
-            error_reenter_password = "*Please reenter your password"
-            return render_template("register.html", error_reenter_password=error_reenter_password)
-
-        # Ensure password was confirmed correctly
-        elif request.form.get("password") != request.form.get("confirmation"):
-            error_password_match = "*Passwords do not match"
-            return render_template("register.html", error_password_match=error_password_match)
-
-        # Log user in after they successfully register
-        elif request.form.get("password") == request.form.get("confirmation"):
-            db.execute("INSERT INTO users (username, hash) VALUES (?, ?)", request.form.get(
+        # Create user and Log user in after they successfully register
+        if request.form.get("password"):
+            db.execute("INSERT INTO users (username, hashed_password) VALUES (?, ?)", request.form.get(
                        "username"), generate_password_hash(request.form.get("password")))
             return login()
 
-    # User reached route via GET
+    # Show Register page.
     else:
         return render_template("register.html")
         
@@ -103,7 +91,7 @@ def login():
         rows = db.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
 
         # Ensure username exists and password is correct
-        if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
+        if len(rows) != 1 or not check_password_hash(rows[0]["hashed_password"], request.form.get("password")):
             error_invalid = "*Invalid password / username"
             return render_template("login.html", error_invalid=error_invalid)
 
@@ -281,7 +269,7 @@ def password():
 
         # Ensure current password is correct
         user = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
-        if not check_password_hash(user[0]["hash"], request.form.get("current_password")):
+        if not check_password_hash(user[0]["hashed_password"], request.form.get("current_password")):
             error_wrong_password = "*Incorrect password"
             return render_template("setting.html", error_wrong_password=error_wrong_password, username=username, created=created, post_length=post_length)
 
@@ -302,7 +290,7 @@ def password():
 
         # Update password to new one
         elif request.form.get("new_password") == request.form.get("confirmation"):
-            db.execute("UPDATE users SET hash = ? WHERE id = ?", generate_password_hash(
+            db.execute("UPDATE users SET hashed_password = ? WHERE id = ?", generate_password_hash(
                        request.form.get("new_password")), session["user_id"])
             success_password = "*Password successfully updated"
             return render_template("setting.html", success_password=success_password, username=username, created=created, post_length=post_length)
@@ -342,7 +330,7 @@ def delete_account():
         rows = db.execute("SELECT * FROM users WHERE username = ?", request.form.get("delete-username"))
 
         # Ensure username exists and password is correct
-        if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("delete-password")):
+        if len(rows) != 1 or not check_password_hash(rows[0]["hashed_password"], request.form.get("delete-password")):
             error_invalid = "*Invalid password / username"
             return render_template("setting.html", error_invalid=error_invalid, username=username, created=created, post_length=post_length)
 
