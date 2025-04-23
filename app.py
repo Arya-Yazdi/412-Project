@@ -122,51 +122,35 @@ def home():
 
     # When user submits a post
     if request.method == "POST":
-
         title = request.form.get("title")
         content = request.form.get("content")
 
         # Ensure title is included
-        if not request.form.get("title"):
+        if not title:
             error_title = "*Add a title"
-
-            # Load all posts from database
-            posts = db.execute("SELECT * FROM posts ORDER BY time DESC")
-
+            posts = db.execute("SELECT * FROM posts ORDER BY time_stamp DESC")
             return render_template("home.html", error_title=error_title, posts=posts, content=content)
 
         # Ensure content of post is included
-        elif not request.form.get("content"):
-            error_content = "Nothing is on your mind?"
-
-            # Load all posts from database
-            posts = db.execute("SELECT * FROM posts ORDER BY time DESC")
-
+        if not content:
+            error_content = "Write a comment."
+            posts = db.execute("SELECT * FROM posts ORDER BY time_stamp DESC")
             return render_template("home.html", error_content=error_content, posts=posts, title=title)
 
-        else:
-            # Get username of user from database
-            user = db.execute("SELECT username FROM users WHERE id = ?", session["user_id"])
-            username = user[0]["username"]
+        # Get title and content user posts
+        title = request.form.get("title")
+        content = request.form.get("content")
 
-            # Get title and content user posts (and filter offensive words)
-            filtered_title = request.form.get("title")
-            filtered_content = request.form.get("content")
+        # Store title and content user posts in database
+        db.execute("INSERT INTO posts (user_id, title, content) VALUES (?, ?, ?)", 
+                    session["user_id"], title, content)
+        
+        posts = db.execute("SELECT * FROM posts ORDER BY time_stamp DESC")
+        return render_template("home.html", posts=posts)
 
-            # Store title and content user posts in database
-            db.execute("INSERT INTO posts (username, user_id, title, content) VALUES (?, ?, ?, ?)", 
-                       username, session["user_id"], filtered_title, filtered_content)
-            
-            # Load all posts from database
-            posts = db.execute("SELECT * FROM posts ORDER BY time DESC")
-
-            return render_template("home.html", posts=posts)
-
-    # User visits page without posting
+    # Display main homepage to user
     else:
-        # Load all posts from database
-        posts = db.execute("SELECT * FROM posts ORDER BY time DESC")
-
+        posts = db.execute("SELECT * FROM posts ORDER BY time_stamp DESC")
         return render_template("home.html", posts=posts)
 
 
@@ -183,7 +167,7 @@ def my_posts():
             error_delete_title = "*Type in title of post you want to delete"
 
             # Load all posts from database 
-            user_posts = db.execute("SELECT * FROM posts WHERE user_id = ? ORDER BY time DESC ", session["user_id"])
+            user_posts = db.execute("SELECT * FROM posts WHERE user_id = ? ORDER BY time_stamp DESC ", session["user_id"])
 
             return render_template("my_posts.html", error_delete_title=error_delete_title, user_posts=user_posts)
 
@@ -194,7 +178,7 @@ def my_posts():
             error_invalid_title = "*You don't have a post with such title"
 
             # Load all posts from database         
-            user_posts = db.execute("SELECT * FROM posts WHERE user_id = ? ORDER BY time DESC ", session["user_id"])
+            user_posts = db.execute("SELECT * FROM posts WHERE user_id = ? ORDER BY time_stamp DESC ", session["user_id"])
 
             return render_template("my_posts.html", error_invalid_title=error_invalid_title, user_posts=user_posts)
 
@@ -206,14 +190,14 @@ def my_posts():
             db.execute("DELETE FROM posts WHERE title = ? AND user_id = ? ", delete_title, session["user_id"])
 
             # Load all posts from database         
-            user_posts = db.execute("SELECT * FROM posts WHERE user_id = ? ORDER BY time DESC ", session["user_id"])
+            user_posts = db.execute("SELECT * FROM posts WHERE user_id = ? ORDER BY time_stamp DESC ", session["user_id"])
 
             return render_template("my_posts.html", user_posts=user_posts)
 
     # User visits page without posting
     else:
         # Load all posts from database         
-        user_posts = db.execute("SELECT * FROM posts WHERE user_id = ? ORDER BY time DESC ", session["user_id"])
+        user_posts = db.execute("SELECT * FROM posts WHERE user_id = ? ORDER BY time_stamp DESC ", session["user_id"])
 
         return render_template("my_posts.html",  user_posts=user_posts)
 ## END MAIN PAGES ##
@@ -227,7 +211,7 @@ def setting():
     # Get username and date of account creation of user from database
     user = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
     username = user[0]["username"]
-    created = user[0]["time"]
+    created = user[0]["time_stamp"]
 
     # Calculate number of posts user posted
     post_length = len(db.execute("SELECT * FROM posts WHERE user_id = ?", session["user_id"]))
@@ -245,7 +229,7 @@ def password():
         # Get username and date of account creation of user from database
         user = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
         username = user[0]["username"]
-        created = user[0]["time"]
+        created = user[0]["time_stamp"]
 
         # Calculate number of posts user posted
         post_length = len(db.execute("SELECT * FROM posts WHERE user_id = ?", session["user_id"]))
@@ -299,7 +283,7 @@ def delete_account():
         # Get username and date of account creation of user from database
         user = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
         username = user[0]["username"]
-        created = user[0]["time"]
+        created = user[0]["time_stamp"]
 
         # Calculate number of posts user posted
         post_length = len(db.execute("SELECT * FROM posts WHERE user_id = ?", session["user_id"]))
