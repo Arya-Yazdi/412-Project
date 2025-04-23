@@ -108,20 +108,11 @@ def login():
 # Log user out 
 @app.route("/logout", methods=["GET", "POST"])
 def logout():
+    # Clear user_id
+    session.clear()
 
-    if request.method == "POST":
-        # Clear user_id
-        session.clear()
-
-        # Redirect user to login form
-        return redirect("/")
-
-    else:
-        # Clear user_id
-        session.clear()
-
-        # Redirect user to login form
-        return redirect("/")
+    # Redirect user to login form
+    return redirect("/")
 ## END REGISTRATION, LOG IN , LOG OUT ##
 
 
