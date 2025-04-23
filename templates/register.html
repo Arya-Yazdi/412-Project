@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Register
+{% endblock %}
+
+{% block main %}
+
+    <div class="row">
+
+        <div class="column left">
+            <img src="{{url_for('static', filename='building.jpg')}}" id="login-photo">
+        </div>
+
+        <div class="column right rem6-right-padding">
+
+            <div class="login-register-header">
+                <h1 class="login-register-h1"> REGISTER </h1>
+            </div>
+
+            <div class="register-container">
+
+                <form action="/register" method="post">
+
+                    <div class="mb-3">
+                        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="username" name="username" placeholder="Username" type="text" autocomplete="off">
+                        <p class="error-white"> {{ error_username_taken }} {{ error_no_username }}</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <input class="form-control mx-auto w-auto" id="password" name="password" placeholder="Password" type="password" autocomplete="off">
+                        <p class="error-white"> {{ error_password }} </p>
+                    </div>
+
+                    <div class="mb-3">
+                        <input class="form-control mx-auto w-auto" id="confirmation" name="confirmation" placeholder="Confirm" type="password" autocomplete="off">
+                        <p class="error-white"> {{ error_reenter_password }} {{ error_password_match }} </p>
+                    </div>
+
+                    <button class="btn btn-primary" id="login-register-button" type="submit">Register</button>
+
+                </form>
+
+                <hr>
+
+                <p class="login-register-question"> Already have an account? </p>
+
+                <form action="/login" method="get">
+                    <button class="btn btn-primary" id="login-register-button" type="submit"> Log in </button>
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+    
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Log In
+{% endblock %}
+
+{% block main %}
+
+    <div class="row">
+
+        <div class="column left">
+            <img src="{{url_for('static', filename='building.jpg')}}" id="login-photo">
+        </div>
+
+        <div class="column right rem6-right-padding">
+
+            <div class="login-register-header">
+                <h1 class="login-register-h1"> LOG IN </h1>
+            </div>
+
+            <div class="login-container">
+
+                <form action="/login" method="post">
+
+                    <div class="mb-3">
+                        <input class="form-control mx-auto w-auto" id="username" name="username" placeholder="Username" type="text" maxlength="20" autocomplete="off">
+                        <p class="error-white"> {{ error_no_username }}</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <input class="form-control mx-auto w-auto" id="password" name="password" placeholder="Password" type="password">
+                        <p class="error-white"> {{ error_password }} {{ error_invalid }} </p>
+                    </div>
+
+                    <button class="btn btn-primary" id="login-register-button" type="submit">Log In</button>
+
+                </form>
+
+                <hr>
+
+                <p class="login-register-question"> Don't have an account yet? </p>
+
+                <form action="/register" method="get">
+                    <button class="btn btn-primary" id="login-register-button" type="submit"> Register </button>
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+{% endblock %}

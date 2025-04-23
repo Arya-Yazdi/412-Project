@@ -1,0 +1,95 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Password
+{% endblock %}
+
+{% block main %}
+
+    <div class="users-post-header">
+        <h1> My Account </h1>
+    </div>
+
+    <div class="users-post-container">
+
+        <h2><i>@{{ username }}</i></h2>
+
+        <br>
+
+        <div class="row">
+
+            <div class="column left rem5-right-padding">
+                <p><strong> Number of posts: </strong> {{ post_length }} </p>
+            </div>
+
+            <div class="column right px65-margin-right">
+                <p><strong> Created on: </strong> {{ created }} </p>
+            </div>
+
+        </div>
+
+        <br>
+
+        <form action="/logout" method="post">
+            <button class="btn btn-primary main-button" id="delete-button" type="submit"> Log out </button>
+        </form>
+
+    </div>
+
+    <div class="users-post-header">
+        <h1> Change Password </h1>
+    </div>
+
+    <div class="users-post-container">
+
+        <form action="/password" method="post">
+
+            <div class="mb-3">
+                <input class="form-control mx-auto w-auto" id="current_password" name="current_password" placeholder="Current password" type="password" autocomplete="off">
+                <p class="error"> {{ error_password }} {{ error_wrong_password }} </p>
+            </div>
+
+            <div class="mb-3">
+                <input class="form-control mx-auto w-auto" id="new_password" name="new_password" placeholder="New password" type="password" autocomplete="off">
+                <p class="error"> {{ error_new_password }}</p>
+            </div>
+
+            <div class="mb-3">
+                <input class="form-control mx-auto w-auto" id="confirmation" name="confirmation" placeholder="Confirm new password" type="password" autocomplete="off">
+                <p class="error"> {{ error_password_match }} {{ error_reenter_password }} </p>
+                <p class="success"> {{ success_password }} </p>
+            </div>
+
+            <button class="btn btn-primary setting-button" type="submit"> Update password </button>
+
+        </form>
+
+    </div>
+
+    <div class="users-post-header">
+        <h1> Delete Account </h1>
+    </div>
+
+    <div class="users-post-container">
+
+        <form action="/delete-account" method="post">
+
+            <div class="mb-3">
+                <input class="form-control mx-auto w-auto" id="delete-username" name="delete-username" placeholder="Username" type="text" maxlength="20">
+                <p class="error"> {{ error_username }}</p>
+            </div>
+
+            <div class="mb-3">
+                <input class="form-control mx-auto w-auto" id="delete-password" name="delete-password" placeholder="Password" type="password">
+                <p class="error"> {{ error_password2 }} {{ error_invalid }} </p>
+            </div>
+
+            <button class="btn btn-primary setting-button" type="submit"> Delete account </button>
+
+        </form>
+
+    </div>
+    
+    <br>
+
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    MY POSTS
+{% endblock %}
+
+{% block main %}
+
+    <div class="users-post-header">
+        <h1> Need to delete a post? </h1>
+    </div>
+
+    <div class="users-post-container">
+
+        <form action="/my-posts" method="post">
+
+            <div class="mb-3">
+                <input class="form-control" id="delete-title" name="delete-title" placeholder="Title of post you want to delete" type="text" >
+                <p class="error"> {{error_invalid_title }} {{ error_delete_title }} </p>                
+            </div>
+
+            <button class="btn btn-primary main-button" id="delete-button" type="submit"> Delete </button>
+
+        </form>
+
+    </div>
+
+    <div class="others-post-header">
+        <h1> My Posts </h1>
+    </div>
+
+    <div>
+
+        {% for user_post in user_posts %}
+
+            <div class="others-post-container">
+
+                <h2>{{ user_post["title"] }} </h2>
+
+                <p>{{ user_post["content"] }} </p>
+
+                <div class="row">
+
+                    <div class="column left">
+                        <p class="username"><strong> @{{ user_post["username"] }} </strong></p>
+                    </div>
+
+                    <div class="column right">
+                        <p> {{ user_post["time"] }} </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+{% endblock %}

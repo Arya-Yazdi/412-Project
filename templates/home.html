@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block main %}
+
+    <div class="users-post-header">
+        <h1> What's on your mind? </h1>
+    </div>
+
+    <div class="users-post-container">
+
+        <form action="/" method="post">
+
+            <div class="mb-3">
+                <input class="form-control" id="title" name="title" placeholder="Title" type="text" value="{{ title }}">
+                <p class="error"> {{ error_title }}</p>
+            </div>
+
+            <div class="mb-3">
+                <textarea class="form-control" id="content" name="content" placeholder="Let loose ..." rows = "7" maxlength="500" style="resize: none" >{{ content }}</textarea>
+                <p class="error"> {{ error_content }}</p>
+            </div>
+
+            <button class="btn btn-primary main-button" id="home-button" type="submit"> Post </button>
+
+        </form>
+
+    </div>
+
+    <div class="others-post-header">
+        <h1> Posts from fellow CS50 students </h1>
+    </div>
+
+    <div>
+        {% for post in posts %}
+
+            <div class="others-post-container">
+
+                <h2> {{ post["title"] }} </h2>
+
+                <p> {{ post["content"] }} </p>
+
+                <div class="row">
+
+                    <div class="column left">
+                        <p class="username"><strong> @{{ post["username"] }} </strong></p>
+                    </div>
+
+                    <div class="column right">
+                        <p> {{ post["time"] }} </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+{% endblock %}
