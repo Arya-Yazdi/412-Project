@@ -83,25 +83,24 @@ def login():
             return render_template("login.html", error_no_username=error_no_username)
 
         # Ensure password was submitted
-        elif not request.form.get("password"):
+        if not request.form.get("password"):
             error_password = "*Please type in your password"
             return render_template("login.html", error_password=error_password)
 
         # Query database for username
-        rows = db.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
+        results = db.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
 
         # Ensure username exists and password is correct
-        if len(rows) != 1 or not check_password_hash(rows[0]["hashed_password"], request.form.get("password")):
-            error_invalid = "*Invalid password / username"
-            return render_template("login.html", error_invalid=error_invalid)
+        if len(results) != 1 or not check_password_hash(results[0]["hashed_password"], request.form.get("password")):
+            return render_template("login.html", error_invalid="*Invalid password / username")
 
         # Remember which user has logged in
-        session["user_id"] = rows[0]["id"]
+        session["user_id"] = results[0]["id"]
 
         # Redirect user to home page
         return redirect("/")
 
-    # User reaches page by link
+    # Display login page to user
     else:
         return render_template("login.html")
 
