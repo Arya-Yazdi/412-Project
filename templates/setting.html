@@ -65,30 +65,6 @@
         </form>
 
     </div>
-
-    <div class="users-post-header">
-        <h1> Delete Account </h1>
-    </div>
-
-    <div class="users-post-container">
-
-        <form action="/delete-account" method="post">
-
-            <div class="mb-3">
-                <input class="form-control mx-auto w-auto" id="delete-username" name="delete-username" placeholder="Username" type="text" maxlength="20">
-                <p class="error"> {{ error_username }}</p>
-            </div>
-
-            <div class="mb-3">
-                <input class="form-control mx-auto w-auto" id="delete-password" name="delete-password" placeholder="Password" type="password">
-                <p class="error"> {{ error_password2 }} {{ error_invalid }} </p>
-            </div>
-
-            <button class="btn btn-primary setting-button" type="submit"> Delete account </button>
-
-        </form>
-
-    </div>
     
     <br>
 
