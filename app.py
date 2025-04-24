@@ -167,12 +167,12 @@ def home():
         return render_template("home.html", posts=posts)
 
 
-# My posts page (Viewing and deleting content) 
+# My posts page (Viewing and deleting content)
 @app.route("/my-posts", methods=["GET", "POST"])
 @login_required
 def my_posts():
     fetch_query = """
-        SELECT 
+        SELECT
             posts.id,
             posts.title,
             posts.content,
@@ -191,7 +191,7 @@ def my_posts():
         if not request.form.get("delete-title"):
             error_delete_title = "*Type in title of post you want to delete"
 
-            # Load all posts from database 
+            # Load all posts from database
             user_posts = db.execute(fetch_query, session["user_id"])
 
             return render_template("my_posts.html", error_delete_title=error_delete_title, user_posts=user_posts)
@@ -202,7 +202,7 @@ def my_posts():
         if len(rows) == 0:
             error_invalid_title = "*You don't have a post with such title"
 
-            # Load all posts from database         
+            # Load all posts from database
             user_posts = db.execute(fetch_query, session["user_id"])
 
             return render_template("my_posts.html", error_invalid_title=error_invalid_title, user_posts=user_posts)
@@ -214,14 +214,14 @@ def my_posts():
             # Delete user's post from database
             db.execute("DELETE FROM posts WHERE title = ? AND user_id = ? ", delete_title, session["user_id"])
 
-            # Load all posts from database         
+            # Load all posts from database
             user_posts = db.execute(fetch_query, session["user_id"])
 
             return render_template("my_posts.html", user_posts=user_posts)
 
     # User visits page without posting
     else:
-        # Load all posts from database         
+        # Load all posts from database
         user_posts = db.execute(fetch_query, session["user_id"])
 
         return render_template("my_posts.html",  user_posts=user_posts)
