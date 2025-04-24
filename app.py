@@ -1,8 +1,10 @@
+import platform
 from cs50 import SQL
 from flask import Flask, redirect, render_template, request, session
 from flask_session import Session
 from functools import wraps
 from werkzeug.security import check_password_hash, generate_password_hash
+from datetime import datetime
 
 # Configure application
 app = Flask(__name__)
@@ -119,7 +121,18 @@ def logout():
 @app.route("/", methods=["GET", "POST"])
 @login_required
 def home():
-
+    query = """
+            SELECT 
+                posts.id,
+                posts.title,
+                posts.content,
+                posts.time_stamp,
+                users.username
+            FROM posts
+            JOIN users ON posts.user_id = users.id
+            ORDER BY posts.time_stamp DESC;
+            """
+    
     # When user submits a post
     if request.method == "POST":
         title = request.form.get("title")
@@ -128,13 +141,13 @@ def home():
         # Ensure title is included
         if not title:
             error_title = "*Add a title"
-            posts = db.execute("SELECT * FROM posts ORDER BY time_stamp DESC")
+            posts = db.execute(query)
             return render_template("home.html", error_title=error_title, posts=posts, content=content)
 
         # Ensure content of post is included
         if not content:
             error_content = "Write a comment."
-            posts = db.execute("SELECT * FROM posts ORDER BY time_stamp DESC")
+            posts = db.execute(query)
             return render_template("home.html", error_content=error_content, posts=posts, title=title)
 
         # Get title and content user posts
@@ -145,12 +158,12 @@ def home():
         db.execute("INSERT INTO posts (user_id, title, content) VALUES (?, ?, ?)", 
                     session["user_id"], title, content)
         
-        posts = db.execute("SELECT * FROM posts ORDER BY time_stamp DESC")
+        posts = db.execute(query)
         return render_template("home.html", posts=posts)
 
-    # Display main homepage to user
+    # Display homepage to user
     else:
-        posts = db.execute("SELECT * FROM posts ORDER BY time_stamp DESC")
+        posts = db.execute(query)
         return render_template("home.html", posts=posts)
 
 
@@ -324,3 +337,19 @@ def delete_account():
     else:
         return render_template("setting.html")
 ## END SETTINGS ##
+
+
+### CUSTOM FUNCTION FOR NINJA FILTER
+@app.template_filter("format_datetime")
+# Formats DateTime from SQlite based on users operating system
+def format_datetime(date_time):
+    try:
+        # Get python dateTime from string.
+        parsed_date_time = datetime.strptime(date_time, "%Y-%m-%d %H:%M:%S")
+        if platform.system() == "Windows":
+            format = "%#I:%M %p, %B %d, %Y" # Hashtag instead of '-'
+        else: 
+            format = "%-I:%M %p, %B %d, %Y" # UNIX OS: '-' instead of Hashtag
+        return parsed_date_time.strftime(format)
+    except Exception:
+        return date_time

@@ -26,7 +26,7 @@
 
             <div class="container-fluid">
 
-                <a class="navbar-brand" href="/" id="logo">TheDevilTalks - Forks Up</a>
+                <a class="navbar-brand" href="/" id="logo">TheDevilTalks</a>
 
                 <button aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-bs-target="#navbar" data-bs-toggle="collapse" type="button">
                     <span class="navbar-toggler-icon"></span>
@@ -35,10 +35,6 @@
                 <div class="collapse navbar-collapse" id="navbar">
                     
                     {% if session["user_id"] %}
-
-                        <ul class="navbar-nav me-auto mt-2">
-                            <li class="nav-item"><a class="nav-link" href="/">What's on your mind?</a></li>
-                        </ul>
 
                         <ul class="navbar-nav ms-auto mt-2 rem5-right-padding" >
                             <li class="nav-item"><a class="nav-link" href="/setting">Settings</a></li>
