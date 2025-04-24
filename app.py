@@ -199,19 +199,20 @@ def my_posts():
 ## END MAIN PAGES ##
 
 
-## SETTINGS ##
+## SETTINGS ## 
 # Load settings page
 @app.route("/setting")
 @login_required
 def setting():
     # Get username and date of account creation of user from database
-    user = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
+    user = db.execute("SELECT username, joined_at FROM users WHERE id = ?", session["user_id"])
     username = user[0]["username"]
-    created = user[0]["time_stamp"]
+    joined = user[0]["joined_at"]
 
     # Calculate number of posts user posted
-    post_length = len(db.execute("SELECT * FROM posts WHERE user_id = ?", session["user_id"]))
-    return render_template("setting.html", username=username, created=created, post_length=post_length)
+    rows = db.execute("SELECT COUNT(*) AS count FROM posts WHERE user_id = ?", session["user_id"])
+    post_length = rows[0]["count"]
+    return render_template("setting.html", username=username, joined=joined, post_length=post_length)
 
 
 # Allow user to change password
@@ -333,6 +334,20 @@ def format_datetime(date_time):
             format = "%#I:%M %p, %B %d, %Y" # Hashtag instead of '-'
         else: 
             format = "%-I:%M %p, %B %d, %Y" # UNIX OS: '-' instead of Hashtag
+        return parsed_date_time.strftime(format)
+    except Exception:
+        return date_time
+    
+@app.template_filter("format_datetime_getdate")
+# Formats DateTime from SQlite based on users operating system
+def format_datetime(date_time):
+    try:
+        # Get python dateTime from string.
+        parsed_date_time = datetime.strptime(date_time, "%Y-%m-%d %H:%M:%S")
+        if platform.system() == "Windows":
+            format = "%B %d, %Y" # Hashtag instead of '-'
+        else: 
+            format = "%B %d, %Y" # UNIX OS: '-' instead of Hashtag
         return parsed_date_time.strftime(format)
     except Exception:
         return date_time
