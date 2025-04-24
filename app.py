@@ -121,7 +121,7 @@ def logout():
 @app.route("/", methods=["GET", "POST"])
 @login_required
 def home():
-    query = """
+    fetch_query = """
             SELECT 
                 posts.id,
                 posts.title,
@@ -141,13 +141,13 @@ def home():
         # Ensure title is included
         if not title:
             error_title = "*Add a title"
-            posts = db.execute(query)
+            posts = db.execute(fetch_query)
             return render_template("home.html", error_title=error_title, posts=posts, content=content)
 
         # Ensure content of post is included
         if not content:
             error_content = "Write a comment."
-            posts = db.execute(query)
+            posts = db.execute(fetch_query)
             return render_template("home.html", error_content=error_content, posts=posts, title=title)
 
         # Get title and content user posts
@@ -158,19 +158,31 @@ def home():
         db.execute("INSERT INTO posts (user_id, title, content) VALUES (?, ?, ?)", 
                     session["user_id"], title, content)
         
-        posts = db.execute(query)
+        posts = db.execute(fetch_query)
         return render_template("home.html", posts=posts)
 
     # Display homepage to user
     else:
-        posts = db.execute(query)
+        posts = db.execute(fetch_query)
         return render_template("home.html", posts=posts)
 
 
-# My posts page (Viewing and deleting content)
+# My posts page (Viewing and deleting content) 
 @app.route("/my-posts", methods=["GET", "POST"])
 @login_required
 def my_posts():
+    fetch_query = """
+        SELECT 
+            posts.id,
+            posts.title,
+            posts.content,
+            posts.time_stamp,
+            users.username
+        FROM posts
+        JOIN users ON posts.user_id = users.id
+        WHERE posts.user_id = ?
+        ORDER BY posts.time_stamp DESC;
+    """
 
     # When user submits a post
     if request.method == "POST":
@@ -180,7 +192,7 @@ def my_posts():
             error_delete_title = "*Type in title of post you want to delete"
 
             # Load all posts from database 
-            user_posts = db.execute("SELECT * FROM posts WHERE user_id = ? ORDER BY time_stamp DESC ", session["user_id"])
+            user_posts = db.execute(fetch_query, session["user_id"])
 
             return render_template("my_posts.html", error_delete_title=error_delete_title, user_posts=user_posts)
 
@@ -191,7 +203,7 @@ def my_posts():
             error_invalid_title = "*You don't have a post with such title"
 
             # Load all posts from database         
-            user_posts = db.execute("SELECT * FROM posts WHERE user_id = ? ORDER BY time_stamp DESC ", session["user_id"])
+            user_posts = db.execute(fetch_query, session["user_id"])
 
             return render_template("my_posts.html", error_invalid_title=error_invalid_title, user_posts=user_posts)
 
@@ -203,14 +215,14 @@ def my_posts():
             db.execute("DELETE FROM posts WHERE title = ? AND user_id = ? ", delete_title, session["user_id"])
 
             # Load all posts from database         
-            user_posts = db.execute("SELECT * FROM posts WHERE user_id = ? ORDER BY time_stamp DESC ", session["user_id"])
+            user_posts = db.execute(fetch_query, session["user_id"])
 
             return render_template("my_posts.html", user_posts=user_posts)
 
     # User visits page without posting
     else:
         # Load all posts from database         
-        user_posts = db.execute("SELECT * FROM posts WHERE user_id = ? ORDER BY time_stamp DESC ", session["user_id"])
+        user_posts = db.execute(fetch_query, session["user_id"])
 
         return render_template("my_posts.html",  user_posts=user_posts)
 ## END MAIN PAGES ##

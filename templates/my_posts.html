@@ -31,22 +31,22 @@
 
     <div>
 
-        {% for user_post in user_posts %}
+        {% for post in user_posts %}
 
             <div class="others-post-container">
 
-                <h2>{{ user_post["title"] }} </h2>
+                <h2>{{ post["title"] }} </h2>
 
-                <p>{{ user_post["content"] }} </p>
+                <p>{{ post["content"] }} </p>
 
                 <div class="row">
 
                     <div class="column left">
-                        <p class="username"><strong> @{{ user_post["username"] }} </strong></p>
+                        <p class="username"><strong> @{{ post["username"] }} </strong></p>
                     </div>
 
                     <div class="column right">
-                        <p> {{ user_post["time"] }} </p>
+                        <p> {{ post["time_stamp"] | format_datetime }} </p>
                     </div>
 
                 </div>
