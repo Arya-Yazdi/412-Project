@@ -184,47 +184,18 @@ def my_posts():
         ORDER BY posts.time_stamp DESC;
     """
 
-    # When user submits a post
+    # When user wants to delete a post
     if request.method == "POST":
-
-        # Ensure title of post to be deleted is included
-        if not request.form.get("delete-title"):
-            error_delete_title = "*Type in title of post you want to delete"
-
-            # Load all posts from database
-            user_posts = db.execute(fetch_query, session["user_id"])
-
-            return render_template("my_posts.html", error_delete_title=error_delete_title, user_posts=user_posts)
-
-        delete_title = request.form.get("delete-title")
-        rows = db.execute("SELECT * FROM posts WHERE  title = ? AND user_id = ? ", delete_title, session["user_id"])
-
-        if len(rows) == 0:
-            error_invalid_title = "*You don't have a post with such title"
-
-            # Load all posts from database
-            user_posts = db.execute(fetch_query, session["user_id"])
-
-            return render_template("my_posts.html", error_invalid_title=error_invalid_title, user_posts=user_posts)
-
-        else:
-            # Get title and content user posts (and filter offensive words)
-            delete_title = request.form.get("delete-title")
-
-            # Delete user's post from database
-            db.execute("DELETE FROM posts WHERE title = ? AND user_id = ? ", delete_title, session["user_id"])
-
-            # Load all posts from database
-            user_posts = db.execute(fetch_query, session["user_id"])
-
-            return render_template("my_posts.html", user_posts=user_posts)
-
-    # User visits page without posting
-    else:
-        # Load all posts from database
+        post_id = request.form.get("post_id")
+        # Delete user's post from database
+        db.execute("DELETE FROM posts WHERE id = ? AND user_id = ? ", post_id, session["user_id"])
+        # Load all posts from database after post was deleted
         user_posts = db.execute(fetch_query, session["user_id"])
+        return render_template("my_posts.html", user_posts=user_posts)
 
-        return render_template("my_posts.html",  user_posts=user_posts)
+    # Show page to user.
+    user_posts = db.execute(fetch_query, session["user_id"])
+    return render_template("my_posts.html",  user_posts=user_posts)
 ## END MAIN PAGES ##
 
 

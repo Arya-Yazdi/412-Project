@@ -6,7 +6,7 @@
 
 {% block main %}
 
-    <div class="users-post-header">
+    <!-- <div class="users-post-header">
         <h1> Need to delete a post? </h1>
     </div>
 
@@ -23,7 +23,7 @@
 
         </form>
 
-    </div>
+    </div> -->
 
     <div class="others-post-header">
         <h1> My Posts </h1>
@@ -50,6 +50,11 @@
                     </div>
 
                 </div>
+
+                <form action="/my-posts" method="post" onsubmit="return confirm('Are you sure you want to delete the post?');">
+                    <input type="hidden" name="post_id" value="{{ post['id'] }}">
+                    <button type="submit" class="btn btn-danger mt-2">Delete</button>
+                </form>
 
             </div>
 
