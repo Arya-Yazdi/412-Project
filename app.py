@@ -1,6 +1,6 @@
 import platform
 from cs50 import SQL
-from flask import Flask, redirect, render_template, request, session
+from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from functools import wraps
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -204,15 +204,8 @@ def my_posts():
 @app.route("/setting")
 @login_required
 def setting():
-    # Get username and date of account creation of user from database
-    user = db.execute("SELECT username, joined_at FROM users WHERE id = ?", session["user_id"])
-    username = user[0]["username"]
-    joined = user[0]["joined_at"]
-
-    # Calculate number of posts user posted
-    rows = db.execute("SELECT COUNT(*) AS count FROM posts WHERE user_id = ?", session["user_id"])
-    post_length = rows[0]["count"]
-    return render_template("setting.html", username=username, joined=joined, post_length=post_length)
+    user_info = getUserInfo()
+    return render_template("setting.html", **user_info)
 
 
 # Allow user to change password
@@ -222,51 +215,52 @@ def password():
 
     # User submits form to change password
     if request.method == "POST":
-
-        # Get username and date of account creation of user from database
-        user = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
-        username = user[0]["username"]
-        created = user[0]["time_stamp"]
-
-        # Calculate number of posts user posted
-        post_length = len(db.execute("SELECT * FROM posts WHERE user_id = ?", session["user_id"]))
+        user_info = getUserInfo()
 
         # Ensure current password was submitted
         if not request.form.get("current_password"):
             error_password = "*Please type in your password"
-            return render_template("setting.html", error_password=error_password, username=username, created=created, post_length=post_length)
+            return render_template("setting.html", 
+                                   error_password=error_password, 
+                                   **user_info)
 
         # Ensure current password is correct
-        user = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
+        user = db.execute("SELECT hashed_password FROM users WHERE id = ?", session["user_id"])
+
         if not check_password_hash(user[0]["hashed_password"], request.form.get("current_password")):
-            error_wrong_password = "*Incorrect password"
-            return render_template("setting.html", error_wrong_password=error_wrong_password, username=username, created=created, post_length=post_length)
+            return render_template("setting.html", 
+                                   error_wrong_password="*Incorrect password", 
+                                   **user_info)
 
         # Ensure new password was submitted
-        elif not request.form.get("new_password"):
-            error_new_password = "*Please type in your new password"
-            return render_template("setting.html", error_new_password=error_new_password, username=username, created=created, post_length=post_length)
+        if not request.form.get("new_password"):
+            return render_template("setting.html", 
+                                   error_new_password="*Please type in your new password", 
+                                   **user_info)
 
         # Ensure password was reentered for confirmation
-        elif not request.form.get("confirmation"):
-            error_reenter_password = "*Please reenter your password"
-            return render_template("setting.html", error_reenter_password=error_reenter_password, username=username, created=created, post_length=post_length)
+        if not request.form.get("confirmation"):
+            return render_template("setting.html", 
+                                   error_reenter_password="*Please reenter your password", 
+                                   **user_info)
 
         # Ensure new password was confirmed correctly
-        elif request.form.get("new_password") != request.form.get("confirmation"):
-            error_password_match = "*Passwords do not match"
-            return render_template("setting.html", error_password_match=error_password_match, username=username, created=created, post_length=post_length)
+        if request.form.get("new_password") != request.form.get("confirmation"):
+            return render_template("setting.html",
+                                   error_password_match="*Passwords do not match", 
+                                   **user_info)
 
-        # Update password to new one
-        elif request.form.get("new_password") == request.form.get("confirmation"):
-            db.execute("UPDATE users SET hashed_password = ? WHERE id = ?", generate_password_hash(
-                       request.form.get("new_password")), session["user_id"])
-            success_password = "*Password successfully updated"
-            return render_template("setting.html", success_password=success_password, username=username, created=created, post_length=post_length)
+        # Update user's password
+        db.execute("UPDATE users SET hashed_password = ? WHERE id = ?", 
+                   generate_password_hash(request.form.get("new_password")), session["user_id"])
+        
+        return render_template("setting.html", 
+                                success_password="*Password successfully updated", 
+                                **user_info)
 
     # User reached route via GET
     else:
-        return render_template("setting.html")
+        return redirect("/setting")
 
 
 # Allow user to delete account
@@ -351,3 +345,23 @@ def format_datetime(date_time):
         return parsed_date_time.strftime(format)
     except Exception:
         return date_time
+    
+
+
+
+### Basic Helper Functions
+def getUserInfo():
+    # Get username and date of account creation of user from database
+    user = db.execute("SELECT username, joined_at FROM users WHERE id = ?", session["user_id"])
+    username = user[0]["username"]
+    joined = user[0]["joined_at"]
+
+    # Calculate number of posts user posted
+    rows = db.execute("SELECT COUNT(*) AS count FROM posts WHERE user_id = ?", session["user_id"])
+    post_length = rows[0]["count"]
+
+    return {
+        "username": username,
+        "joined": joined,
+        "post_length": post_length
+    }
