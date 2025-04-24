@@ -17,7 +17,7 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# Configure CS50 Library to use SQLite database
+# Configure Library to use SQLite database
 db = SQL("sqlite:///database.db")
 # Needed for CASCADE to work
 db.execute("PRAGMA foreign_keys = ON;")
