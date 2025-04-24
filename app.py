@@ -19,7 +19,8 @@ Session(app)
 
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///database.db")
-
+# Needed for CASCADE to work
+db.execute("PRAGMA foreign_keys = ON;")
 
 
 # Function to use @login_required
@@ -263,57 +264,6 @@ def password():
         return redirect("/setting")
 
 
-# Allow user to delete account
-@app.route("/delete-account", methods=["GET", "POST"])
-@login_required
-def delete_account():
-
-    # User submits form
-    if request.method == "POST":
-
-        # Get username and date of account creation of user from database
-        user = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
-        username = user[0]["username"]
-        created = user[0]["time_stamp"]
-
-        # Calculate number of posts user posted
-        post_length = len(db.execute("SELECT * FROM posts WHERE user_id = ?", session["user_id"]))
-
-        # Ensure username was submitted
-        if not request.form.get("delete-username"):
-            error_username = "*Please type in your username"
-            return render_template("setting.html", error_username=error_username, username=username, created=created, post_length=post_length)
-
-        # Ensure password was submitted
-        elif not request.form.get("delete-password"):
-            error_password2 = "*Please type in your password"
-            return render_template("setting.html", error_password2=error_password2, username=username, created=created, post_length=post_length)
-
-        # Query database for username
-        rows = db.execute("SELECT * FROM users WHERE username = ?", request.form.get("delete-username"))
-
-        # Ensure username exists and password is correct
-        if len(rows) != 1 or not check_password_hash(rows[0]["hashed_password"], request.form.get("delete-password")):
-            error_invalid = "*Invalid password / username"
-            return render_template("setting.html", error_invalid=error_invalid, username=username, created=created, post_length=post_length)
-
-        username = request.form.get("delete-username")
-
-        # Delete user's posts
-        db.execute("DELETE FROM posts WHERE username = ? AND user_id = ?", username, session["user_id"])
-
-        # Delete user from database
-        db.execute("DELETE FROM users WHERE id = ?", session["user_id"])
-
-        # Clear user_id
-        session.clear()
-
-        # Redirect user to home page
-        return redirect("/")
-
-    # User reached route via GET
-    else:
-        return render_template("setting.html")
 ## END SETTINGS ##
 
 
