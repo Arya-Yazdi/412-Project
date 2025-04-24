@@ -20,7 +20,7 @@
             </div>
 
             <div class="mb-3">
-                <textarea class="form-control" id="content" name="content" placeholder="Let loose ..." rows = "7" maxlength="500" style="resize: none" >{{ content }}</textarea>
+                <textarea class="form-control" id="content" name="content" placeholder="message" rows = "7" maxlength="500" style="resize: none" >{{ content }}</textarea>
                 <p class="error"> {{ error_content }}</p>
             </div>
 
@@ -38,22 +38,17 @@
         {% for post in posts %}
 
             <div class="others-post-container">
-
-                <h2> {{ post["title"] }} </h2>
-
-                <p> {{ post["content"] }} </p>
-
                 <div class="row">
 
                     <div class="column left">
-                        <p class="username"><strong> @{{ post["username"] }} </strong></p>
-                    </div>
-
-                    <div class="column right">
-                        <p> {{ post["time_stamp"] | format_datetime }} </p>
+                        <p> <i>@{{ post["username"] }} on {{ post["time_stamp"] | format_datetime }}</i></p>
                     </div>
 
                 </div>
+
+                <h2> {{ post["title"] }} </h2>
+                
+                <p> {{ post["content"] }} </p>
 
             </div>
 
