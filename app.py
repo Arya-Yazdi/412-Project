@@ -97,6 +97,10 @@ def login():
 
         # Remember which user has logged in
         session["user_id"] = results[0]["id"]
+        session["is_admin"] = results[0]["is_admin"]
+
+        if session["is_admin"] == 1:
+            return redirect("/admin")
 
         # Redirect user to home page
         return redirect("/")
@@ -167,6 +171,29 @@ def home():
         posts = db.execute(fetch_query)
         return render_template("home.html", posts=posts)
 
+
+# Admin page (Viewing Audit Logs)
+@app.route("/admin", methods=["GET"])
+@login_required
+def admin():
+    if session.get("is_admin") == 0:
+        return redirect("/")
+    fetch_query = """
+            SELECT 
+                users.id,
+                users.username,
+                post_logs.post_id,
+                post_logs.title,
+                post_logs.operation,
+                post_logs.time_stamp
+            FROM post_logs
+            JOIN users ON post_logs.user_id = users.id
+            ORDER BY post_logs.time_stamp DESC;
+            """
+
+    logs = db.execute(fetch_query)
+    return render_template("admin.html", logs=logs)
+    
 
 # My posts page (Viewing and deleting content)
 @app.route("/my-posts", methods=["GET", "POST"])
