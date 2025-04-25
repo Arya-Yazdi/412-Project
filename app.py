@@ -200,16 +200,20 @@ def admin():
 @login_required
 def my_posts():
     fetch_query = """
-        SELECT
-            posts.id,
-            posts.title,
-            posts.content,
-            posts.time_stamp,
-            users.username
-        FROM posts
-        JOIN users ON posts.user_id = users.id
-        WHERE posts.user_id = ?
-        ORDER BY posts.time_stamp DESC;
+        WITH user_posts AS (
+            SELECT
+                posts.id,
+                posts.title,
+                posts.content,
+                posts.time_stamp,
+                users.username
+            FROM posts
+            JOIN users ON posts.user_id = users.id
+            WHERE posts.user_id = ?
+        )
+        SELECT *
+        FROM user_posts
+        ORDER BY time_stamp DESC;
     """
 
     # When user wants to delete a post
