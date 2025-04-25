@@ -17,18 +17,13 @@
             <div class="others-post-container">
 
                 <div class="row">
-
                     <div class="column left">
                         <p> <i>@{{ post["username"] }} on {{ post["time_stamp"] | format_datetime }}</i></p>
                     </div>
-
                 </div>
 
                 <h2> {{ post["title"] }} </h2>
-                
                 <p> {{ post["content"] }} </p>
-
-                </div>
 
                 <form action="/my-posts" method="post" onsubmit="return confirm('Are you sure you want to delete the post?');">
                     <input type="hidden" name="post_id" value="{{ post['id'] }}">
