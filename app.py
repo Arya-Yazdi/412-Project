@@ -127,16 +127,24 @@ def logout():
 @login_required
 def home():
     fetch_query = """
-            SELECT 
-                posts.id,
-                posts.title,
-                posts.content,
-                posts.time_stamp,
-                users.username
-            FROM posts
-            JOIN users ON posts.user_id = users.id
-            ORDER BY posts.time_stamp DESC;
-            """
+    WITH ranked_posts AS (
+        SELECT 
+            posts.id,
+            posts.title,
+            posts.content,
+            posts.time_stamp,
+            users.username,
+            users.is_admin,
+            RANK() OVER (
+                ORDER BY users.is_admin DESC, posts.time_stamp DESC
+            ) AS rank_order
+        FROM posts
+        JOIN users ON posts.user_id = users.id
+        )
+        SELECT *
+        FROM ranked_posts
+        ORDER BY rank_order;
+    """
     
     # When user submits a post
     if request.method == "POST":
