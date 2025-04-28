@@ -1,6 +1,6 @@
 import platform
 from cs50 import SQL
-from flask import Flask, flash, redirect, render_template, request, session
+from flask import Flask, redirect, render_template, request, session
 from flask_session import Session
 from functools import wraps
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -19,7 +19,6 @@ Session(app)
 
 # Configure Library to use SQLite database
 db = SQL("sqlite:///database.db")
-# Needed for CASCADE to work
 db.execute("PRAGMA foreign_keys = ON;")
 
 
